@@ -464,7 +464,7 @@ internal OS_FileIter OS_FileIterMake(Arena* arena, String8 path)
 		result.Handle = {handle};
 		result.Info.Name = Str8Copy(arena, Str8C(data.cFileName));
 		result.Info.FileSize = ((u64)data.nFileSizeHigh << 32) | data.nFileSizeLow;
-		result.Info.Attribs.Flags = data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? OS_FileFlag_Directory : OS_FileFlag_None;
+		result.Info.Flags = data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? OS_FileFlag_Directory : OS_FileFlag_None;
 	}
 	
 	ReleaseScratch(scratch);
@@ -481,7 +481,7 @@ internal OS_FileIter OS_FileIterNext(Arena* arena, OS_FileIter iter)
 		{
 			iter.Info.Name = Str8Copy(arena, Str8C(data.cFileName));
 			iter.Info.FileSize = ((u64)data.nFileSizeHigh << 32) | data.nFileSizeLow;
-			iter.Info.Attribs.Flags = data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? OS_FileFlag_Directory : OS_FileFlag_None;
+			iter.Info.Flags = data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? OS_FileFlag_Directory : OS_FileFlag_None;
 		}
 		else
 		{
@@ -514,7 +514,7 @@ internal OS_FileInfo OS_GetFileInfo(String8 path)
 	{
 		result.Name = path;
 		result.FileSize = ((u64)data.nFileSizeHigh << 32) | data.nFileSizeLow;
-		result.Attribs.Flags = data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? OS_FileFlag_Directory : OS_FileFlag_None;
+		result.Flags = data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ? OS_FileFlag_Directory : OS_FileFlag_None;
 	}
 	ReleaseScratch(scratch);
 	return result;

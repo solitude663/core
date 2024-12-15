@@ -233,10 +233,29 @@ internal String8 Str8Concat(Arena* arena, String8 a, String8 b)
 	return result;
 }
 
-internal String8 Str8PushF(Arena* arena, String8 format, ...)
+internal String8 Str8Format(Arena* arena, char* format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	String8 f = Str8C(format);
+	String8 result = Str8FormatExplicit(arena, f, args);
+	va_end(args);
+	return result;
+}
+
+internal String8 Str8Format(Arena* arena, String8 format, ...)
+{
+	va_list args;
+	va_start(args, format);
+	String8 result = Str8FormatExplicit(arena, format, args);
+	va_end(args);
+	return result;
+}
+
+internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 {	
 	va_list countPtr, printPtr;	
-	va_start(countPtr, format);
+	va_copy(countPtr, args);
 	va_copy(printPtr, countPtr);
 
 	u64 len = 0;
@@ -259,6 +278,12 @@ internal String8 Str8PushF(Arena* arena, String8 format, ...)
 					b32 value = va_arg(countPtr, b32);
 					if(value == 0) len += 4;
 					else len += 5;
+				}break;
+
+				case('c'):
+				{
+					u8 value = va_arg(countPtr, u8);
+					len += 1;
 				}break;
 
 				case('d'):
@@ -299,6 +324,12 @@ internal String8 Str8PushF(Arena* arena, String8 format, ...)
 					len += value.Length;
 				}break;
 
+				case('s'):
+				{
+					char* value = va_arg(countPtr, char*);					
+					len += CStringLength(value);
+				}break;
+
 				default:
 				{
 					Assert(0);
@@ -331,6 +362,12 @@ internal String8 Str8PushF(Arena* arena, String8 format, ...)
 				{
 					b32 value = va_arg(printPtr, b32);
 					inc += snprintf(off, len-inc, "%s", value ? "true" : "false");
+				}break;
+
+				case('c'):
+				{
+					u8 value = va_arg(printPtr, u8);
+					inc += snprintf(off, len-inc, "%c", (char)value);
 				}break;
 
 				case('d'):
@@ -368,6 +405,12 @@ internal String8 Str8PushF(Arena* arena, String8 format, ...)
 				{
 					String8 value = va_arg(printPtr, String8);
 					inc += snprintf(off, len-inc, "%.*s", Str8Print(value));
+				}break;
+
+				case('s'):
+				{
+					char* value = va_arg(printPtr, char*);
+					inc += snprintf(off, len-inc, "%s", value);
 				}break;
 
 				default:
@@ -438,7 +481,7 @@ internal void Str8ListPushFront(Arena* arena, String8List* list, String8 str)
 	Str8ListPushNodeFront(list, node);
 }
 
-internal String8 Str8ListJoin(Arena* arena, String8List list, String8 join)
+internal String8 Str8Join(Arena* arena, String8List list, String8 join)
 {
 	u64 len = (list.NodeCount - 1) * join.Length + list.Length;
 	u8* buffer = PushArray(arena, u8, len);
@@ -509,7 +552,7 @@ internal String8List Str8Split(Arena* arena, String8 str, String8 split)
 	return result;
 }
 
-internal u64 FindStr8(String8 str, String8 search)
+internal u64 Str8Find(String8 str, String8 search)
 {
 	u64 result = str.Length;
 	for(u64 i = 0; i < str.Length; i++)
@@ -525,7 +568,7 @@ internal u64 FindStr8(String8 str, String8 search)
 	return result;
 }
 
-internal String8 Str8ReplaceAll(Arena* arena, String8 str, String8 id, String8 target)
+internal String8 Str8Replace(Arena* arena, String8 str, String8 id, String8 target)
 {
 	TempArena scratch = GetScratch(arena);
 
@@ -539,7 +582,7 @@ internal String8 Str8ReplaceAll(Arena* arena, String8 str, String8 id, String8 t
 			curr = Substr8(curr, id.Length, curr.Length - id.Length);
 		}		
 		
-		u64 index = FindStr8(curr, id);
+		u64 index = Str8Find(curr, id);
 		if(index != curr.Length)
 		{
 			Str8ListPush(scratch.Arena, &list, Prefix8(curr, index));
@@ -552,7 +595,7 @@ internal String8 Str8ReplaceAll(Arena* arena, String8 str, String8 id, String8 t
 		}
 	}
 
-	String8 result = Str8ListJoin(arena, list, Str8Lit(""));
+	String8 result = Str8Join(arena, list, Str8Lit(""));
 
 	ReleaseScratch(scratch);
 	return result;
@@ -593,7 +636,7 @@ internal f64 F64FromStr8(String8 str)
 {
 	f64 result = 0;
 
-	u64 dotIndex = FindStr8(str, Str8Lit("."));
+	u64 dotIndex = Str8Find(str, Str8Lit("."));
 	u64 intValue = U64FromStr8(Prefix8(str, dotIndex));
 	String8 floatPart = Substr8(str, dotIndex+1, str.Length - dotIndex - 1);
 

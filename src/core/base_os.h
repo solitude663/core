@@ -48,7 +48,7 @@ internal b8		  OS_FlagParse(u64 argc, char** argv);
 
 struct OS_Handle
 {
-	ptr_value Handle;	
+	ptr_value Handle;
 };
 
 enum OS_AccessFlags
@@ -72,7 +72,7 @@ internal b32       OS_FileDelete(String8 path);
 enum OS_FileFlags
 {
 	OS_FileFlag_None      = (0 << 0),
-	OS_FileFlag_Directory = (1 << 0),	
+	OS_FileFlag_Directory = (1 << 0),
 };
 
 struct OS_FileAttributes
@@ -84,7 +84,7 @@ struct OS_FileInfo
 {
 	String8 Name;
 	u64 FileSize;	
-	OS_FileAttributes Attribs;	
+	OS_FileFlags Flags;	
 };
 
 struct OS_FileIter
