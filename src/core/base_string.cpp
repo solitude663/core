@@ -67,13 +67,13 @@ internal u8 ToLower(u8 c)
 }
 
 internal u64 CStringLength(char* cstr)
-{
+{	
 	u64 result = 0;
-	for(;*cstr != 0; cstr++)
+	if(cstr)
 	{
-		result += 1;
+		for(;*cstr != 0; cstr++)
+			result += 1;		
 	}
-
 	return result;
 }
 
@@ -132,7 +132,7 @@ internal String8 Trim8Back(String8 str, String8 bad)
 
 internal String8 Trim8Space(String8 str)
 {
-	String8 result = str;
+	String8 result = {0};
 
 	u64 start = 0;
 	for(u64 i = 0; i < str.Length; i++)
@@ -146,15 +146,15 @@ internal String8 Trim8Space(String8 str)
 			break;
 		}
 	}
-	result.Str += start;
-	result.Length -= start;
+	result.Str = str.Str + start;
+	result.Length = str.Length - start;
 
 	u64 end = 0;
 	if(result.Length)
 	{
-		for(u64 i = result.Length-1; i >= 0; i--)
+		for(u64 i = 0; i < result.Length; i++)
 		{
-			if(IsSpace(str.Str[i]))
+			if(IsSpace(str.Str[str.Length - (i+1)]))
 			{
 				end++;
 			}
@@ -228,8 +228,7 @@ internal String8 Str8Concat(Arena* arena, String8 a, String8 b)
 	MemoryCopy(str, a.Str, a.Length);
 	MemoryCopy(str + a.Length, b.Str, b.Length);
 	result.Str = str;
-	result.Length = len;
-
+	result.Length = len;	
 	return result;
 }
 
@@ -283,6 +282,7 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 				case('c'):
 				{
 					u8 value = va_arg(countPtr, u8);
+					UnusedVariable(value);
 					len += 1;
 				}break;
 
@@ -483,7 +483,7 @@ internal void Str8ListPushFront(Arena* arena, String8List* list, String8 str)
 
 internal String8 Str8Join(Arena* arena, String8List list, String8 join)
 {
-	u64 len = (list.NodeCount - 1) * join.Length + list.Length;
+	u64 len = list.NodeCount ? ((list.NodeCount - 1) * join.Length + list.Length) : 0;
 	u8* buffer = PushArray(arena, u8, len);
 
 	u64 passed = 0;
@@ -508,10 +508,14 @@ internal String8 Str8Join(Arena* arena, String8List list, String8 join)
 internal String8List Str8Split(Arena* arena, String8 str, String8 split)
 {
 	String8List result = {0};
-	if(split.Length == 0) return result;
-	
+	if(split.Length == 0)
+	{
+		Str8ListPush(arena, &result, str);
+		return result;
+	}
+
 	String8 curr = str;	
-	while(curr.Length != 0)
+	for(;;)
 	{
 		b8 added = false;
 		while(Str8Match(Prefix8(curr, split.Length), split, MF_None))
@@ -520,38 +524,24 @@ internal String8List Str8Split(Arena* arena, String8 str, String8 split)
 			curr.Length -= split.Length;
 		}
 
-		u8* head = curr.Str;
-		u8* end = 0;
-		String8 test = curr;
-		for(u64 i = 0; i < curr.Length; i++)
-		{			
-			if(Str8Match(Prefix8(test, split.Length), split, MF_None))
-			{
-				end = curr.Str + i;
-				curr.Str += i;
-				curr.Length -= i;
-				break;
-			}
-			test.Length--;
-			test.Str++;
-		}
-
-		if(end != 0)
+		u64 index = Str8Find(curr, split);
+		if(index != curr.Length)
 		{
-			Str8ListPush(arena, &result, Str8(head, end - head));
-			added = true;
+			Str8ListPush(arena, &result, Prefix8(curr, index));
+			curr = Substr8(curr, index, curr.Length - index);
 		}
-		
-		if(curr.Length < split.Length || !added)
+		else
 		{
-			Str8ListPush(arena, &result, curr);
+			if(curr.Length) Str8ListPush(arena, &result, curr);
 			break;
 		}
 	}
-		
+
 	return result;
 }
 
+// NOTE(afb) :: If 'search' is not found it returns the function returns the
+// length of the string
 internal u64 Str8Find(String8 str, String8 search)
 {
 	u64 result = str.Length;
@@ -561,6 +551,23 @@ internal u64 Str8Find(String8 str, String8 search)
 		if(Str8Match(sub, search, MF_None))
 		{
 			result = i;
+			break;
+		}
+	}
+
+	return result;
+}
+
+internal u64 Str8FindLast(String8 str, String8 search)
+{
+	u64 result = str.Length;
+	for(u64 i = 0; i < str.Length; i++)
+	{
+		u64 index = str.Length - (i+1);
+		String8 sub = Substr8(str, index, search.Length);
+		if(Str8Match(sub, search, MF_None))
+		{
+			result = index;
 			break;
 		}
 	}
@@ -590,12 +597,12 @@ internal String8 Str8Replace(Arena* arena, String8 str, String8 id, String8 targ
 		}
 		else
 		{
-			Str8ListPush(scratch.Arena, &list, curr);
+			if(curr.Length) Str8ListPush(scratch.Arena, &list, curr);
 			break;
 		}
 	}
 
-	String8 result = Str8Join(arena, list, Str8Lit(""));
+	String8 result = Str8Join(arena, list, "");
 
 	ReleaseScratch(scratch);
 	return result;
@@ -636,7 +643,7 @@ internal f64 F64FromStr8(String8 str)
 {
 	f64 result = 0;
 
-	u64 dotIndex = Str8Find(str, Str8Lit("."));
+	u64 dotIndex = Str8Find(str, ".");
 	u64 intValue = U64FromStr8(Prefix8(str, dotIndex));
 	String8 floatPart = Substr8(str, dotIndex+1, str.Length - dotIndex - 1);
 

@@ -30,6 +30,10 @@ internal u64 GetU64Length(u64 value)
 
 internal u64 GetI64Length(i64 value)
 {
-	f64 nDigits = (f64)floorl(log10l(labs((long)value))) + 1;
-	return (u64)nDigits;
+	if(value == 0) return 1;  // Special case for 0
+    return (u64)log10l(value < 0 ? -(f64)value : (f64)value) + 1;
+
+	// 
+	// f64 nDigits = (f64)floorl(log10l(labs((long)value))) + 1;
+	// return (u64)nDigits;
 }

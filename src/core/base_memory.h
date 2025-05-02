@@ -10,10 +10,12 @@ struct Arena
 	u8* Base;
 	u64 Size;
 	u64 Used;
-	u64 Offset;
-	// u64 PrevSize;
-	u64 CommitSize;
+	u64 SizeCommited;
 	u64 Align;
+
+	// Realloc
+	u64 LastOffset;
+	u64 LastAllocSize;	
 };
 
 struct TempArena

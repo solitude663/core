@@ -12,7 +12,7 @@ internal Arena* ArenaAlloc(u64 size, u64 align = ARENA_DEFAULT_ALIGN)
 	Arena* arena = (Arena*)base;
 	arena->Base = (u8*)base + sizeof(Arena);
 	arena->Size = allocationSize - sizeof(Arena);
-	arena->CommitSize = initialCommitSize - sizeof(Arena);
+	arena->SizeCommited = initialCommitSize - sizeof(Arena);
 	arena->Used = 0;
 	arena->Align = align;
 
@@ -56,23 +56,23 @@ internal void* ArenaPushNoZero(Arena* arena, u64 size)
 	void* result = 0;
 	
 	u8* target = arena->Base + arena->Used;
-	ptr_value offset = AlignForward((ptr_value)target, arena->Align);
-	offset -= (ptr_value)arena->Base; // Convert to relative offset;
-	
-	if((size + offset) < arena->Size)
+	ptr_value offset_from_base = AlignForward((ptr_value)target, arena->Align);
+	offset_from_base -= (ptr_value)arena->Base; // Convert to relative offset;
+
+	u64 new_offset = offset_from_base + size;
+	if(new_offset < arena->Size)
 	{
-		if((size + offset) > arena->CommitSize)
+		if(new_offset > arena->SizeCommited)
 		{
-			u64 sizeToCommit = (size + offset) - arena->CommitSize;
+			u64 sizeToCommit = new_offset - arena->SizeCommited;
 			sizeToCommit += ARENA_COMMIT_GRANULARITY - 1;
 			sizeToCommit -= sizeToCommit % ARENA_COMMIT_GRANULARITY;
-			OS_Commit(arena->Base + arena->CommitSize, sizeToCommit);
-			arena->CommitSize += sizeToCommit;
+			OS_Commit(arena->Base + arena->SizeCommited, sizeToCommit);
+			arena->SizeCommited += sizeToCommit;
 		}
 
-		result = arena->Base + offset;
-		arena->Used = offset + size;
-		arena->Offset = offset;
+		result = arena->Base + offset_from_base;
+		arena->Used = new_offset;
 	}
 	else
 	{
@@ -91,27 +91,52 @@ internal void* ArenaPush(Arena* arena, u64 size)
 }
 
 #if 0
-internal void* ArenaRealloc(Arena* arena, void* ptr, u64 size)
+internal void* ArenaRealloc(Arena* arena, void* ptr, u64 new_size)
 {
 	void* result = 0;
 
+	u64 old_size = arena->LastAllocSize;
+	i64 diff = new_size - old_size;
+	u64 new_offset = arena->Used + diff;
+
 	u8* mem = (u8*)ptr;
-	
-	if((arena->Base + arena->PrevSize) == mem)
+	if((arena->Base + arena->LastOffset) == mem)
 	{
-		if(!size)
+		if(diff < 0)
 		{
-			
+			arena->Used += diff;
 		}
-		
-		if((arena->Used + size) <= arena->Size)
+		else
 		{
-			arena->Used += size;
+			u8* target = arena->Base + arena->Used;
+			ptr_value offset_from_base = AlignForward((ptr_value)target, arena->Align);
+			offset_from_base -= (ptr_value)arena->Base; // Convert to relative offset;
+
+			u64 new_offset = diff + offset_from_base;
+			if(new_offset < arena->Size)
+			{
+				if(new_offset > arena->SizeCommited)
+				{
+					u64 size_to_commit = new_offset - arena->SizeCommited;
+					size_to_commit += ARENA_COMMIT_GRANULARITY - 1;
+					size_to_commit -= size_to_commit % ARENA_COMMIT_GRANULARITY;
+					OS_Commit(arena->Base + arena->SizeCommited, size_to_commit);
+					arena->SizeCommited += size_to_commit;
+				}
+					
+				result = arena->Base + offset_from_base;
+				arena->Used = new_offset + diff;
+			}
+			else
+			{
+				// TODO(afb) :: Error handling
+				Assert(0);
+			}
 		}
 	}
 	else
 	{
-		result = ArenaPushNoZero(arena, size);
+		result = ArenaPushNoZero(arena, new_size);		
 	}
 }
 #endif
