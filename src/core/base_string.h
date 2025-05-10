@@ -89,7 +89,6 @@ internal String8 Str8Copy(Arena* arena, String8 a);
 internal String8 Str8Fill(Arena* arena, u8 byte, u64 size);
 internal String8 Str8Concat(Arena* arena, String8 a, String8 b);
 internal String8 Str8Format(Arena* arena, String8 format, ...);
-internal String8 Str8Format(Arena* arena, char* format, ...);
 internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args);
 
 // TODOa(afb) :: Rename to Str8Replace
@@ -105,6 +104,7 @@ internal void Str8ListPushFront(Arena* arena, String8List* list, String8 str);
 
 internal String8 Str8Join(Arena* arena, String8List list, String8 join);
 internal String8List Str8Split(Arena* arena, String8 str, String8 split);
+internal String8List Str8SplitRemoveEmpty(Arena* arena, String8 str, String8 split);
 
 // NOTE(afb) :: String8Array
 internal String8Array Str8ListToArray(Arena* arena, String8List list);

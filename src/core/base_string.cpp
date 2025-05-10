@@ -517,7 +517,40 @@ internal String8List Str8Split(Arena* arena, String8 str, String8 split)
 	String8 curr = str;	
 	for(;;)
 	{
-		b8 added = false;
+		if(Str8Match(Prefix8(curr, split.Length), split, MF_None))
+		{
+			curr.Str += split.Length;
+			curr.Length -= split.Length;
+		}
+
+		u64 index = Str8Find(curr, split);
+		if(index != curr.Length)
+		{
+			Str8ListPush(arena, &result, Prefix8(curr, index));
+			curr = Substr8(curr, index, curr.Length - index);
+		}
+		else
+		{
+			if(curr.Length) Str8ListPush(arena, &result, curr);
+			break;
+		}
+	}
+
+	return result;
+}
+
+internal String8List Str8SplitRemoveEmpty(Arena* arena, String8 str, String8 split)
+{
+	String8List result = {0};
+	if(split.Length == 0)
+	{
+		Str8ListPush(arena, &result, str);
+		return result;
+	}
+
+	String8 curr = str;	
+	for(;;)
+	{
 		while(Str8Match(Prefix8(curr, split.Length), split, MF_None))
 		{
 			curr.Str += split.Length;
@@ -539,6 +572,7 @@ internal String8List Str8Split(Arena* arena, String8 str, String8 split)
 
 	return result;
 }
+
 
 // NOTE(afb) :: If 'search' is not found it returns the function returns the
 // length of the string

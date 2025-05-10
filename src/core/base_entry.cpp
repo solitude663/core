@@ -2,6 +2,7 @@ internal void BaseMainThreadEntry(void (*entry)(int, char**), int argc, char **a
 {
 	ThreadContext ctx = TCTXAlloc();
 	ctx.IsMainThread = 1;
+	ctx.Logger = LoggerInit("");
 	SetThreadContext(&ctx);
 	
 	// TODO(afb) :: OS_Init

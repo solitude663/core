@@ -6,7 +6,7 @@
 #include "base_memory.h"
 #include "base_string.h"
 #include "base_os.h"
+#include "base_log.h"
 #include "base_thread_context.h"
 #include "base_entry.h"
-#include "base_log.h"
 #endif // Header guard

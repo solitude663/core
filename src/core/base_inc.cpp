@@ -2,5 +2,6 @@
 #include "base_memory.cpp"
 #include "base_os.cpp"
 #include "base_string.cpp"
+#include "base_log.cpp"
 #include "base_thread_context.cpp"
 #include "base_entry.cpp"
