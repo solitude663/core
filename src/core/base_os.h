@@ -83,6 +83,7 @@ internal OS_Handle OS_FileOpen(String8 path, u64 flags);
 internal String8   OS_FileRead(Arena* arena, OS_Handle handle);
 internal String8   OS_FileReadAll(Arena* arena, String8 path);
 internal b32       OS_FileWrite(OS_Handle file, String8 data, u64 offset);
+internal b32       OS_FileWrite(OS_Handle file, String8List data, u64 offset);
 internal void      OS_FileClose(OS_Handle file);
 internal b32       OS_FileCopy(String8 dest, String8 src, b32 replace);
 internal b32       OS_FileMove(String8 dest, String8 src, b32 replace);
