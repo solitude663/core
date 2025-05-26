@@ -11,8 +11,9 @@ internal void OS_Commit(void* base, u64 size)
 	VirtualAlloc(base, size, MEM_COMMIT, PAGE_READWRITE);
 }
 
-internal void OS_Release(void* base)
+internal void OS_Release(void* basem u64 size = 0)
 {
+	UnusedVariable(0);
 	VirtualFree(base, 0, MEM_RELEASE);
 }
 

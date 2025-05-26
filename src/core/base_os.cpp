@@ -1,5 +1,7 @@
 #if OS_WINDOWS
 #include "win32/base_win32_os.cpp"
+#elif OS_LINUX
+#include "linux/base_linux_os.cpp"
 #else
 #error OS not supported
 #endif
@@ -111,8 +113,9 @@ internal b8 OS_FlagParse(u64 argc, char** argv)
 {
 	b8 result = 1;
 	
-	String8 programName = Str8C(argv[0]);
-
+	String8 program_name = Str8C(argv[0]);
+	UnusedVariable(program_name);
+	
 	for(u64 flagId = 0; flagId < FlagCount; flagId++)
 	{
 		Flag* flag = &Flags[flagId];
@@ -224,6 +227,8 @@ internal String8 OS_Dir(String8 path)
 	return result;
 }
 
+#if 0
+
 internal String8Array OS_DirFiles(Arena* arena, String8 path)
 {
 	TempArena temp = GetScratch(arena);
@@ -308,6 +313,7 @@ internal String8 OS_PathConcat(Arena* arena, String8 a, String8 b) // TODO(afb) 
 	return result;
 }
 
+
 internal b32 OS_PathExists(String8 path)
 {
 	OS_FileInfo info = OS_GetFileInfo(path);
@@ -356,3 +362,4 @@ internal b32 OS_PathWalk(String8 path, WalkFunc proc, void* obj)
 }
 
 
+#endif

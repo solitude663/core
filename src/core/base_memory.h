@@ -20,7 +20,7 @@ struct Arena
 
 struct TempArena
 {
-	Arena* Arena;
+	::Arena* Arena;
 	u64 Position;
 };
 
@@ -29,7 +29,7 @@ internal Arena* ArenaAllocDefault();
 internal void   ArenaFree(Arena* arena);
 internal void*  ArenaPushNoZero(Arena* arena, u64 size);
 internal void*  ArenaPush(Arena* arena, u64 size);
-internal void*  ArenaRealloc(Arena* arena, u8* ptr, u64 size);
+// TODO internal void*  ArenaRealloc(Arena* arena, u8* ptr, u64 size);
 internal void   ArenaClear(Arena* arena);
 
 internal TempArena TempArenaBegin(Arena* arena);

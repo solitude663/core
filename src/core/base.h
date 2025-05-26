@@ -26,6 +26,7 @@ typedef i16 b16;
 typedef i32 b32;
 
 typedef uintptr_t ptr_value;
+typedef intptr_t  sptr_value;
 
 #define internal		 static
 #define local_persist	 static

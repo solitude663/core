@@ -281,7 +281,7 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 
 				case('c'):
 				{
-					u8 value = va_arg(countPtr, u8);
+					u8 value = (u8)va_arg(countPtr, i32);
 					UnusedVariable(value);
 					len += 1;
 				}break;
@@ -366,7 +366,7 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 
 				case('c'):
 				{
-					u8 value = va_arg(printPtr, u8);
+					u8 value = (u8)va_arg(printPtr, i32);
 					inc += snprintf(off, len-inc, "%c", (char)value);
 				}break;
 
@@ -379,7 +379,7 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 				case('l'):
 				{
 					i64 value = va_arg(printPtr, i64);
-					inc += snprintf(off, len-inc, "%lld", value);
+					inc += snprintf(off, len-inc, "%ld", value);
 				}break;
 
 				case('u'):
@@ -388,7 +388,7 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 					if(curr == 'l')
 					{
 						u64 value = va_arg(printPtr, u64);
-						inc += snprintf(off, len-inc, "%llu", value);
+						inc += snprintf(off, len-inc, "%lu", value);
 					}
 					else if(curr == 'd')
 					{
@@ -683,7 +683,7 @@ internal f64 F64FromStr8(String8 str)
 
 	f64 floatValue = 0;
 	i32 div = 1;
-	for(int i = 0; i < floatPart.Length; i++)
+	for(u64 i = 0; i < floatPart.Length; i++)
 	{
 		u8 value = floatPart.Str[i];
 		if(IsDigit(value))

@@ -3,7 +3,7 @@
 
 struct ThreadContext
 {
-	Logger* Logger;
+	::Logger* Logger;
 	Arena *ScratchArenas[2];
 	b32 IsMainThread;
 };

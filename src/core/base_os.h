@@ -49,7 +49,7 @@ struct Flag
 // TODO(afb) :: internal void  OS_Decommit(void* base, u64 size); 
 internal void* OS_Reserve(u64 size);
 internal void  OS_Commit(void* base, u64 size);
-internal void  OS_Release(void* base);
+internal void  OS_Release(void* base, u64 size = 0);
 
 // NOTE(afb) :: Flag parsing
 internal u64*	  OS_FlagInt(String8 name, u64 defaultValue, String8 usage);
@@ -80,7 +80,8 @@ enum OS_AccessFlags
 };
 
 internal OS_Handle OS_FileOpen(String8 path, u64 flags);
-internal String8   OS_FileRead(Arena* arena, OS_Handle handle);
+internal String8   OS_FileRead(Arena* arena, OS_Handle handle, u64 start, u64 count);
+
 internal String8   OS_FileReadAll(Arena* arena, String8 path);
 internal b32       OS_FileWrite(OS_Handle file, String8 data, u64 offset);
 internal b32       OS_FileWrite(OS_Handle file, String8List data, u64 offset);
@@ -89,6 +90,7 @@ internal b32       OS_FileCopy(String8 dest, String8 src, b32 replace);
 internal b32       OS_FileMove(String8 dest, String8 src, b32 replace);
 internal b32       OS_FileDelete(String8 path);
 internal String8   OS_FileExt(String8 path);
+
 
 enum OS_FileFlags
 {
@@ -114,20 +116,22 @@ struct OS_FileIter
 	OS_FileInfo Info;
 };
 
+
 internal String8	  OS_Dir(String8 path);
 internal b32		  OS_DirCreate(String8 path);
 internal String8Array OS_DirFiles(Arena* arena, String8 path);
 
+#if 0
 internal OS_FileIter OS_FileIterMake(Arena* arena, String8 path);
 internal OS_FileIter OS_FileIterNext(Arena* arena, OS_FileIter iter);
 internal void        OS_FileIterClose(OS_FileIter iter);
 internal b32         OS_FileIterValid(OS_FileIter iter);
+#endif
 
-internal OS_FileInfo OS_GetFileInfo(String8 path);
+// internal OS_FileInfo OS_GetFileInfo(String8 path);
 internal u64	     OS_GetFileSize(String8 path);
 internal b32	     OS_FileExists(String8 path);
 internal b32	     OS_FileIsValid(OS_Handle file);
-
 
 // NOTE(afb) :: Process Manipulation
 // TODO(afb) :: Add arguments

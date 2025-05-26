@@ -12,7 +12,7 @@ typedef enum LogMsgKind
 
 struct Logger
 {
-	Arena* Arena;
+	::Arena* Arena;
 
 	String8 PreFormat;
 	String8List Logs[LogMsgKind_Count];
@@ -24,15 +24,15 @@ internal void LogMsg(Logger* logger, LogMsgKind kind, String8 msg);
 internal void LogMsgF(Logger* logger, LogMsgKind kind, String8 format, ...);
 
 #define LogInfo(l, msg)		LogMsg(l, LogMsgKind_Info, msg)
-#define LogInfoF(l, msg)	LogMsgF(l, LogMsgKind_Info, format, __VA_ARGS__)
+#define LogInfoF(l, msg, ...)	LogMsgF(l, LogMsgKind_Info, format, __VA_ARGS__)
 
 #define LogWarning(l, msg)	LogMsg(l, LogMsgKind_Warning, msg)
-#define LogWarningF(l, msg) LogMsgF(l, LogMsgKind_Warning, format, __VA_ARGS__)
+#define LogWarningF(l, msg, ...) LogMsgF(l, LogMsgKind_Warning, format, __VA_ARGS__)
 
 #define LogError(l, msg)	LogMsg(l, LogMsgKind_Error, msg)
-#define LogErrorF(l, msg)	LogMsgF(l, LogMsgKind_Error, format, __VA_ARGS__)
+#define LogErrorF(l, msg, ...)	LogMsgF(l, LogMsgKind_Error, format, __VA_ARGS__)
 
 #define LogPanic(l, msg)	LogMsg(l, LogMsgKind_Panic, msg)
-#define LogPanicF(l, msg)	LogMsgF(l, LogMsgKind_Panic, format, __VA_ARGS__)
+#define LogPanicF(l, msg, ...)	LogMsgF(l, LogMsgKind_Panic, format, __VA_ARGS__)
 
 #endif // Header guard
