@@ -91,7 +91,7 @@ internal b32       OS_FileMove(String8 dest, String8 src, b32 replace);
 internal b32       OS_FileDelete(String8 path);
 internal String8   OS_FileExt(String8 path);
 
-
+#define IsDirectory(flags) (((flags) & OS_FileFlag_Directory) == OS_FileFlag_Directory)
 enum OS_FileFlags
 {
 	OS_FileFlag_None      = (0 << 0),
@@ -135,7 +135,9 @@ internal b32	     OS_FileIsValid(OS_Handle file);
 
 // NOTE(afb) :: Process Manipulation
 // TODO(afb) :: Add arguments
+#if OS_WINDOWS
 internal String8 OS_RunCommand(Arena* arena, String8 commandToExecute); 
+#endif
 
 // NOTE(afb) :: Path
 internal String8 OS_PathNormalize(Arena* arena, String8 file_path);

@@ -227,7 +227,6 @@ internal String8 OS_Dir(String8 path)
 	return result;
 }
 
-#if 0
 
 internal String8Array OS_DirFiles(Arena* arena, String8 path)
 {
@@ -295,7 +294,13 @@ internal String8 OS_PathNormalize(Arena* arena, String8 file_path)
 		Str8ListPush(temp.Arena, &sb, path_parts.Values[index]);
 	}
 
+		// TODO(afb) :: Optimize for linux
+#if OS_WINDOWS
 	result = Str8Join(arena, sb, path_sep);
+#else
+	String8 temp_result = Str8Join(temp.Arena, sb, path_sep);
+	result = Str8Concat(arena, "/", temp_result);
+#endif
 	
 	ReleaseScratch(temp);
 	return result;
@@ -304,9 +309,10 @@ internal String8 OS_PathNormalize(Arena* arena, String8 file_path)
 internal String8 OS_PathConcat(Arena* arena, String8 a, String8 b) // TODO(afb) :: Varadic 
 {
 	TempArena temp = GetScratch(arena);
-	if(a.Str[a.Length-1] != OS_PATH_SEPARATOR[0] || b.Str[b.Length-1] != OS_PATH_SEPARATOR[0])
+	if((a.Length && a.Str[a.Length-1] != OS_PATH_SEPARATOR[0]) &&
+	   (b.Length && b.Str[0] != OS_PATH_SEPARATOR[0]))
 		a = Str8Concat(temp.Arena, a, OS_PATH_SEPARATOR);
-	
+
 	String8 result = Str8Concat(temp.Arena, a, b);
 	result = OS_PathNormalize(arena, result);
 	ReleaseScratch(temp);
@@ -317,14 +323,19 @@ internal String8 OS_PathConcat(Arena* arena, String8 a, String8 b) // TODO(afb) 
 internal b32 OS_PathExists(String8 path)
 {
 	OS_FileInfo info = OS_GetFileInfo(path);
-	b32 result = (info.Flags & OS_FileFlag_Directory) != 0;
+	b32 result = IsDirectory(info.Flags);
 	return result;
 }
 
 internal void OS_PathWalkHelper(String8 path, WalkFunc proc, void* obj)
 {
 	TempArena temp = GetScratch(0);
+
+#if OS_WINDOWS
 	String8 raw_path = Substr8(path, 0, path.Length-1);
+#else
+	String8 raw_path = path;
+#endif
 	
 	for(OS_FileIter iter = OS_FileIterMake(temp.Arena, path);
 		OS_FileIterValid(iter);
@@ -338,10 +349,11 @@ internal void OS_PathWalkHelper(String8 path, WalkFunc proc, void* obj)
 
 		proc(obj, filename, info);
 
-		if(info.Flags & OS_FileFlag_Directory)
-		{			
-			String8 search_path = OS_PathConcat(temp.Arena, filename, "*");
-			OS_PathWalkHelper(search_path, proc, obj);
+		if(IsDirectory(info.Flags))
+		{
+			// String8 search_path = OS_PathConcat(temp.Arena, filename, "*");
+			// OS_PathWalkHelper(search_path, proc, obj);
+			OS_PathWalk(filename, proc, obj);
 		}
 
 	}
@@ -351,15 +363,19 @@ internal void OS_PathWalkHelper(String8 path, WalkFunc proc, void* obj)
 
 internal b32 OS_PathWalk(String8 path, WalkFunc proc, void* obj)
 {
-	if(!OS_PathExists(path)) return false;
+	if(!OS_PathExists(path))
+	{
+		return false;
+	}
 	TempArena temp = GetScratch(0);
 
+#if OS_WINDOWS	
 	String8 search_path = OS_PathConcat(temp.Arena, path, "*");
+#else
+	String8 search_path = path;
+#endif
 	OS_PathWalkHelper(search_path, proc, obj);
 
 	ReleaseScratch(temp);
 	return true;
 }
-
-
-#endif
