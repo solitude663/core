@@ -55,4 +55,19 @@ internal void LogMsg(Logger* logger, LogMsgKind kind, String8 msg)
 	ReleaseScratch(temp);
 	
 }
-// internal void LogMsgF(Logger* logger, LogMsgKind kind, String8 format, ...);
+
+internal void LogMsgF(Logger* logger, LogMsgKind kind, String8 format, ...)
+{
+	if(!logger)
+	{
+		ThreadContext* ctx = GetThreadContext();
+		logger = ctx->Logger;
+	}
+
+	va_list args;
+	va_start(args, format);
+	String8 msg = Str8FormatExplicit(logger->Arena, format, args);
+	va_end(args);
+	LogMsg(logger, kind, msg);
+}
+

@@ -66,6 +66,7 @@ internal u8 ToLower(u8 c);
 // NOTE(afb) :: Constructors
 internal String8 Str8(u8* str, u64 size);
 #define Str8C(cstr) {(u8*)(cstr), CStringLength(cstr)}
+#define Str8CLit(cstr) Str8((u8*)(cstr), CStringLength(cstr))
 // #define Str8Lit(str) Str8((u8*)str, sizeof(str) - 1)
 // #define Str8Lit(str) {(u8*)str, sizeof(str) - 1}
 
