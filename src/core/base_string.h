@@ -3,7 +3,7 @@
 
 #define Str8Print(str) (i32)(str).Length, (str).Str
 
-internal u64 CStringLength(char* cstr);
+internal u64 CStringLength(const char* cstr);
 
 struct String8
 {
@@ -12,7 +12,7 @@ struct String8
 
 	String8() = default;
 
-	inline String8(char* cstr)
+	inline String8(const char* cstr)
 	{
 		Str = (u8*)cstr;
 		Length = CStringLength(cstr);

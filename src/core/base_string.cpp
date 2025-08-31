@@ -66,7 +66,7 @@ internal u8 ToLower(u8 c)
 	return c;
 }
 
-internal u64 CStringLength(char* cstr)
+internal u64 CStringLength(const char* cstr)
 {	
 	u64 result = 0;
 	if(cstr)
@@ -232,7 +232,7 @@ internal String8 Str8Concat(Arena* arena, String8 a, String8 b)
 	return result;
 }
 
-internal String8 Str8Format(Arena* arena, char* format, ...)
+internal String8 Str8Format(Arena* arena, const char* format, ...)
 {
 	va_list args;
 	va_start(args, format);

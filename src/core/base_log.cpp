@@ -35,7 +35,7 @@ internal void LogMsg(Logger* logger, LogMsgKind kind, String8 msg)
 	}
 
 	TempArena temp = GetScratch(0);
-
+	
 	String8 log = {0};
 	if(kind == LogMsgKind_Info)
 		log = Str8Format(temp.Arena, "\x1b[%dm[INFO]\x1b[0m %S %S", ANSI_FG_GREEN, logger->PreFormat, msg);
@@ -47,7 +47,7 @@ internal void LogMsg(Logger* logger, LogMsgKind kind, String8 msg)
 		log = Str8Format(temp.Arena, "\x1b[%dm[PANIC]\x1b[0m %S %S", ANSI_FG_RED, logger->PreFormat, msg);		
 	else Assert(0);
 	
-	Str8ListPush(logger->Arena, &(logger->Logs[kind]), log);
+	// Str8ListPush(logger->Arena, &(logger->Logs[kind]), log);
 	printf("%.*s\n", Str8Print(log));
 
 	// TODO(afb) :: Create OS_Exit();
@@ -63,7 +63,7 @@ internal void LogMsgF(Logger* logger, LogMsgKind kind, String8 format, ...)
 		ThreadContext* ctx = GetThreadContext();
 		logger = ctx->Logger;
 	}
-
+	
 	va_list args;
 	va_start(args, format);
 	String8 msg = Str8FormatExplicit(logger->Arena, format, args);
