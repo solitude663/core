@@ -39,6 +39,9 @@ typedef intptr_t  sptr_value;
 
 #define ArrayCount(arr) (sizeof(arr) / sizeof((arr)[0]))
 
+#define OffsetOf(type, member) ((u64)&(((type*)0)->member))
+
+
 #define Max(a, b) a > b ? a : b;
 #define Min(a, b) a < b ? a : b;
 
