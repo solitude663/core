@@ -9,16 +9,19 @@
 #ifdef _WIN32
 #undef OS_WINDOWS
 #define OS_WINDOWS 1
+#define OS_NOW "Windows"
 #endif
 
 #ifdef  __linux__
 #undef OS_LINUX
 #define OS_LINUX 1
+#define OS_NOW "Linux"
 #endif
 
 #if __APPLE__ && __MACH__
 #undef OS_MACOS
 #define OS_MACOS 1
+#define OS_NOW "MacOS"
 #endif
 
 #if !(OS_WINDOWS || OS_LINUX || OS_MACOS)
@@ -33,16 +36,19 @@
 #ifdef _MSC_VER
 #undef COMPILER_MSVC
 #define COMPILER_MSVC 1
+#define COMPILER_NOW "msvc"
 #endif
 
 #ifdef __GNUC__
 #undef COMPILER_GCC
 #define COMPILER_GCC 1
+#define COMPILER_NOW "gcc"
 #endif
 
 #ifdef __clang__
 #undef COMPILER_CLANG
 #define COMPILER_CLANG 1
+#define COMPILER_CLANG "clang"
 #endif
 
 #if !(COMPILER_GCC || COMPILER_CLANG || COMPILER_MSVC)

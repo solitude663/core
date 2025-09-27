@@ -313,7 +313,7 @@ internal String8 OS_PathConcat(Arena* arena, String8 a, String8 b) // TODO(afb) 
 	   (b.Length && b.Str[0] != OS_PATH_SEPARATOR[0]))
 		a = Str8Concat(temp.Arena, a, OS_PATH_SEPARATOR);
 
-	String8 result = Str8Concat(temp.Arena, a, b);
+    String8 result = Str8Concat(arena, a, b);
 	result = OS_PathNormalize(arena, result);
 	ReleaseScratch(temp);
 	return result;

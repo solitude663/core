@@ -80,8 +80,8 @@ internal String8 Trim8Back(String8 str, String8 bad);
 internal String8 Trim8Space(String8 str);
 
 // NOTE(afb) :: Comparison
-internal b8 Str8Match(String8 a, String8 b, MatchFlags flags);
-internal b8 operator==(String8& a, String8& b);
+internal b8 Str8Match(const String8& a, const String8& b, MatchFlags flags);
+internal b8 operator==(const String8& a, const String8& b);
 internal u64 Str8Find(String8 str, String8 search); // TODO(afb) :: Match flags
 internal u64 Str8FindLast(String8 str, String8 search); // TODO(afb) :: Match flags
 

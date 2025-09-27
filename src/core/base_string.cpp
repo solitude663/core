@@ -169,7 +169,7 @@ internal String8 Trim8Space(String8 str)
 }
 
 // NOTE(afb) :: Comparison
-internal b8 Str8Match(String8 a, String8 b, MatchFlags flags)
+internal b8 Str8Match(const String8& a, const String8& b, MatchFlags flags)
 {
 	b8 result = 0;
 	
@@ -204,7 +204,7 @@ internal b8 Str8Match(String8 a, String8 b, MatchFlags flags)
 	return result;
 }
 
-internal b8 operator==(String8& a, String8& b)
+internal b8 operator==(const String8& a, const String8& b)
 {
 	return Str8Match(a, b, MF_None);
 }
@@ -224,7 +224,6 @@ internal String8 Str8Concat(Arena* arena, String8 a, String8 b)
 	String8 result;		
 	u64 len = a.Length + b.Length;
 	u8* str = PushArray(arena, u8, len);
-
 	MemoryCopy(str, a.Str, a.Length);
 	MemoryCopy(str + a.Length, b.Str, b.Length);
 	result.Str = str;
@@ -252,7 +251,7 @@ internal String8 Str8Format(Arena* arena, String8 format, ...)
 }
 
 internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
-{	
+{
 	va_list countPtr, printPtr;	
 	va_copy(countPtr, args);
 	va_copy(printPtr, countPtr);
@@ -268,7 +267,13 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 		else
 		{
 			// TODO(afb) :: Do better error handling other than just crashing.
-			Assert((i + 1) < format.Length);
+			// Assert((i + 1) < format.Length);
+			if((i + 1) >= format.Length)
+			{
+				printf("Found % with no type specifier\n");
+				return EmptyString;
+			}
+
 			curr = format.Str[++i];
 			switch(curr)
 			{
@@ -425,7 +430,7 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 	String8 result;
 	result.Str = bytes;
 	result.Length = len-1;
-	
+
 	return result;
 }
 
@@ -444,8 +449,7 @@ internal void Str8ListPushNode(String8List* list, String8Node* node)
 	if(!list->First)
 	{
 		list->First = node;
-		list->Last = node;
-		
+		list->Last = node;		
 	}
 	else
 	{

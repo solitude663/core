@@ -37,3 +37,39 @@ internal u64 GetI64Length(i64 value)
 	// f64 nDigits = (f64)floorl(log10l(labs((long)value))) + 1;
 	// return (u64)nDigits;
 }
+
+internal i32 RoundTo(i32 value, i32 base)
+{	
+    i32 result = ((value + base/2) / base) * base;
+	return result;
+}
+
+internal f32 RoundTo(f32 value, f32 base)
+{
+    f32 result = roundf(value / base) * base;
+	return result;
+}
+
+internal i32 FloorTo(i32 value, i32 base)
+{
+	i32 result = (value / base) * base;
+	return result;
+}
+
+internal f32 FloorTo(f32 value, f32 base)
+{
+    f32 result = floorf(value / base) * base;
+	return result;
+}
+
+internal i32 CeilTo(i32 value, i32 base)
+{
+	i32 result = ((value + base - 1) / base) * base;
+	return result;
+}
+
+internal f32 CeilTo(f32 value, f32 base)
+{
+    f32 result = ceilf(value / base) * base;
+	return result;
+}

@@ -79,6 +79,15 @@ typedef intptr_t  sptr_value;
 internal u64 FNV1A64(void* data, u64 size);
 internal u32 FNV1A32(void* data, u64 size);
 
+internal i32 RoundTo(i32 value, i32 base);
+internal f32 RoundTo(f32 value, f32 base);
+
+internal i32 FloorTo(i32 value, i32 base);
+internal f32 FloorTo(f32 value, f32 base);
+
+internal i32 CeilTo(i32 value, i32 base);
+internal f32 CeilTo(f32 value, f32 base);
+
 // TODO(afb) :: Murmur hash https://en.wikipedia.org/wiki/MurmurHash
 
 #endif // Header guard
