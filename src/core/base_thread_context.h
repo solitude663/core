@@ -4,7 +4,7 @@
 struct ThreadContext
 {
 	::Logger* Logger;
-	Arena *ScratchArenas[2];
+	M_Arena *ScratchArenas[2];
 	b32 IsMainThread;
 };
 
@@ -13,7 +13,7 @@ internal void           TCTXRelease(ThreadContext* threadContext);
 internal ThreadContext* GetThreadContext();
 internal void           SetThreadContext(ThreadContext thtreadContext);
 
-internal TempArena GetScratch(Arena* conflict); // TODO(afb) :: Add variable conflict count
+internal TempArena GetScratch(M_Arena* conflict); // TODO(afb) :: Add variable conflict count
 #define ReleaseScratch(temp) TempArenaEnd(temp)
 
 

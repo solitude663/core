@@ -67,7 +67,7 @@ internal void OS_FileClose(OS_Handle file)
 	close(handle_value);
 }
 
-internal String8 OS_FileRead(Arena* arena, OS_Handle handle, u64 start, u64 count)
+internal String8 OS_FileRead(M_Arena* arena, OS_Handle handle, u64 start, u64 count)
 {
 	String8 result = EmptyString;
 	
@@ -100,7 +100,7 @@ internal String8 OS_FileRead(Arena* arena, OS_Handle handle, u64 start, u64 coun
 }
 
 
-internal String8 OS_FileReadAll(Arena* arena, String8 path)
+internal String8 OS_FileReadAll(M_Arena* arena, String8 path)
 {
 	String8 result = {0};
 	TempArena scratch = GetScratch(arena);
@@ -254,6 +254,24 @@ internal b32 OS_DirCreate(String8 path)
 	return result;
 }
 
+internal String8 GetWorkingDirectory(M_Arena* arena)
+{
+	TempArena temp = GetScratch(arena);
+	String8 result = EmptyString;
+	
+	u64 max_path_len = pathconf(".", _PC_PATH_MAX);
+	char* path_buf = PushArray(temp.Arena, char, max_path_len);	
+	if(getcwd(path_buf, max_path_len))
+	{
+		u64 len = CStringLength(path_buf);
+		result.Str = PushArray(arena, u8, len);
+		result.Length = len;
+		MemoryCopy(result.Str, path_buf, len);
+	}
+	
+	return result;
+}
+
 internal OS_FileInfo OS_GetFileInfo(String8 path)
 {
 	OS_FileInfo result = {0};	
@@ -272,7 +290,7 @@ internal OS_FileInfo OS_GetFileInfo(String8 path)
 	return result;
 }
 
-internal OS_FileIter OS_FileIterMake(Arena* arena, String8 path)
+internal OS_FileIter OS_FileIterMake(M_Arena* arena, String8 path)
 {
 	TempArena temp = GetScratch(arena);
 
@@ -295,7 +313,7 @@ internal OS_FileIter OS_FileIterMake(Arena* arena, String8 path)
 	return result;
 }
 
-internal OS_FileIter OS_FileIterNext(Arena* arena, OS_FileIter iter)
+internal OS_FileIter OS_FileIterNext(M_Arena* arena, OS_FileIter iter)
 {
 	DIR* dir_handle = (DIR*)iter.Handle.Handle;
 	if(dir_handle)
@@ -327,7 +345,7 @@ internal b32 OS_FileIterValid(OS_FileIter iter)
 	return iter.Handle.Handle != 0;
 }
 #if 0
-internal String8 OS_RunCommand(Arena* arena, String8 commandToExecute)
+internal String8 OS_RunCommand(M_Arena* arena, String8 commandToExecute)
 {
 	TempArena temp = GetScratch(arena);
 

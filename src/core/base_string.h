@@ -23,6 +23,16 @@ struct String8
 		Str = str;
 		Length = len;
 	}
+
+	inline u8& operator[](i32 index)
+	{
+		return Str[index];
+	}
+
+	inline const u8& operator[](i32 index) const
+	{
+		return Str[index];
+	}
 };
 
 struct String8Node
@@ -86,29 +96,29 @@ internal u64 Str8Find(String8 str, String8 search); // TODO(afb) :: Match flags
 internal u64 Str8FindLast(String8 str, String8 search); // TODO(afb) :: Match flags
 
 // NOTE(afb) :: Allocation
-internal String8 Str8Copy(Arena* arena, String8 a);
-internal String8 Str8Fill(Arena* arena, u8 byte, u64 size);
-internal String8 Str8Concat(Arena* arena, String8 a, String8 b);
-internal String8 Str8Format(Arena* arena, String8 format, ...);
-internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args);
+internal String8 Str8Copy(M_Arena* arena, String8 a);
+internal String8 Str8Fill(M_Arena* arena, u8 byte, u64 size);
+internal String8 Str8Concat(M_Arena* arena, String8 a, String8 b);
+internal String8 Str8Format(M_Arena* arena, String8 format, ...);
+internal String8 Str8FormatExplicit(M_Arena* arena, String8 format, va_list args);
 
 // TODOa(afb) :: Rename to Str8Replace
-internal String8 Str8Replace(Arena* arena, String8 str, String8 id, String8 target);
-internal char*   ToCString(Arena* arena, String8 str);
+internal String8 Str8Replace(M_Arena* arena, String8 str, String8 id, String8 target);
+internal char*   ToCString(M_Arena* arena, String8 str);
 
 // NOTE(afb) :: String8List
 #define Str8ListPushF(arena, sb, format, ...) Str8ListPush((arena), (sb), Str8Format((arena), (format), __VA_ARGS__))
 internal void Str8ListPushNode(String8List* list, String8Node* node);
 internal void Str8ListPushNodeFront(String8List* list, String8Node* node);
-internal void Str8ListPush(Arena* arena, String8List* list, String8 str);
-internal void Str8ListPushFront(Arena* arena, String8List* list, String8 str);
+internal void Str8ListPush(M_Arena* arena, String8List* list, String8 str);
+internal void Str8ListPushFront(M_Arena* arena, String8List* list, String8 str);
 
-internal String8 Str8Join(Arena* arena, String8List list, String8 join);
-internal String8List Str8Split(Arena* arena, String8 str, String8 split);
-internal String8List Str8SplitRemoveEmpty(Arena* arena, String8 str, String8 split);
+internal String8 Str8Join(M_Arena* arena, String8List list, String8 join);
+internal String8List Str8Split(M_Arena* arena, String8 str, String8 split);
+internal String8List Str8SplitRemoveEmpty(M_Arena* arena, String8 str, String8 split);
 
 // NOTE(afb) :: String8Array
-internal String8Array Str8ListToArray(Arena* arena, String8List list);
+internal String8Array Str8ListToArray(M_Arena* arena, String8List list);
 
 // NOTE(afb) :: Conversions
 // TODO(afb) :: Rename Str8ToU32

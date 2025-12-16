@@ -1,4 +1,4 @@
-internal Arena* ArenaAlloc(u64 size, u64 align = ARENA_DEFAULT_ALIGN)
+internal M_Arena* ArenaAlloc(u64 size, u64 align = ARENA_DEFAULT_ALIGN)
 {
 	u64 allocGranularity = ARENA_ALLOCATION_GRANULARITY;
 	u64 allocationSize = size + allocGranularity - 1;
@@ -6,25 +6,25 @@ internal Arena* ArenaAlloc(u64 size, u64 align = ARENA_DEFAULT_ALIGN)
 	void* base = OS_Reserve(allocationSize);
 
 	u64 initialCommitSize = ARENA_COMMIT_GRANULARITY;
-	Assert(initialCommitSize >= sizeof(Arena));
+	Assert(initialCommitSize >= sizeof(M_Arena));
 
 	OS_Commit(base, initialCommitSize);
-	Arena* arena = (Arena*)base;
-	arena->Base = (u8*)base + sizeof(Arena);
-	arena->Size = allocationSize - sizeof(Arena);
-	arena->SizeCommited = initialCommitSize - sizeof(Arena);
+	M_Arena* arena = (M_Arena*)base;
+	arena->Base = (u8*)base + sizeof(M_Arena);
+	arena->Size = allocationSize - sizeof(M_Arena);
+	arena->SizeCommited = initialCommitSize - sizeof(M_Arena);
 	arena->Used = 0;
 	arena->Align = align;
 
 	return arena;
 }
 
-internal Arena* ArenaAllocDefault()
+internal M_Arena* ArenaAllocDefault()
 {
 	return ArenaAlloc(GB(8));
 }
 
-internal void ArenaFree(Arena* arena)
+internal void ArenaFree(M_Arena* arena)
 {
 	OS_Release((void*)arena);
 }
@@ -51,7 +51,7 @@ internal ptr_value AlignForward(ptr_value ptr, u64 align) {
 	return p;
 }
 
-internal void* ArenaPushNoZero(Arena* arena, u64 size)
+internal void* ArenaPushNoZero(M_Arena* arena, u64 size)
 {
 	void* result = 0;
 	
@@ -83,7 +83,7 @@ internal void* ArenaPushNoZero(Arena* arena, u64 size)
 	return result;
 }
 
-internal void* ArenaPush(Arena* arena, u64 size)
+internal void* ArenaPush(M_Arena* arena, u64 size)
 {
 	void* result = ArenaPushNoZero(arena, size);
 	MemorySet(result, size, 0);
@@ -91,7 +91,7 @@ internal void* ArenaPush(Arena* arena, u64 size)
 }
 
 #if 0
-internal void* ArenaRealloc(Arena* arena, void* ptr, u64 new_size)
+internal void* ArenaRealloc(M_Arena* arena, void* ptr, u64 new_size)
 {
 	void* result = 0;
 
@@ -142,7 +142,7 @@ internal void* ArenaRealloc(Arena* arena, void* ptr, u64 new_size)
 #endif
 
 
-internal void ArenaClear(Arena* arena)
+internal void ArenaClear(M_Arena* arena)
 {
 	arena->Used = 0;
 }
@@ -153,7 +153,7 @@ internal void ArenaClear(Arena* arena)
 #define PushArray(arena, type, count) (type*)ArenaPushNoZero(arena, sizeof(type) * count)
 #define PushArrayZero(arena, type, count) (type*)ArenaPush(arena, sizeof(type) * count)
 
-internal TempArena TempArenaBegin(Arena* arena)
+internal TempArena TempArenaBegin(M_Arena* arena)
 {
 	TempArena result;
 	result.Arena = arena;

@@ -76,10 +76,10 @@ enum OS_AccessFlags
 
 internal OS_Handle OS_FileOpen(String8 path, u64 flags);
 internal void      OS_FileClose(OS_Handle file);
-internal b32       OS_FileWrite(OS_Handle file, String8 data, u64 offset);
+internal b32       OS_FileWrite(OS_Handle file, String8 data, u64 offset = 0);
 internal b32       OS_FileWrite(OS_Handle file, String8List data, u64 offset);
-internal String8   OS_FileRead(Arena* arena, OS_Handle handle, u64 start, u64 count);
-internal String8   OS_FileReadAll(Arena* arena, String8 path);
+internal String8   OS_FileRead(M_Arena* arena, OS_Handle handle, u64 start, u64 count);
+internal String8   OS_FileReadAll(M_Arena* arena, String8 path);
 internal b32       OS_FileCopy(String8 dest, String8 src, b32 replace);
 internal b32       OS_FileMove(String8 dest, String8 src, b32 replace);
 internal b32       OS_FileDelete(String8 path);
@@ -113,11 +113,13 @@ struct OS_FileIter
 
 internal String8	  OS_Dir(String8 path);
 internal b32		  OS_DirCreate(String8 path);
-internal String8Array OS_DirFiles(Arena* arena, String8 path);
+internal String8Array OS_DirFiles(M_Arena* arena, String8 path);
 
-#if 0
-internal OS_FileIter OS_FileIterMake(Arena* arena, String8 path);
-internal OS_FileIter OS_FileIterNext(Arena* arena, OS_FileIter iter);
+internal String8 GetWorkingDirectory(M_Arena* arena);
+
+#if 1
+internal OS_FileIter OS_FileIterMake(M_Arena* arena, String8 path);
+internal OS_FileIter OS_FileIterNext(M_Arena* arena, OS_FileIter iter);
 internal void        OS_FileIterClose(OS_FileIter iter);
 internal b32         OS_FileIterValid(OS_FileIter iter);
 #endif
@@ -130,12 +132,12 @@ internal b32	     OS_FileIsValid(OS_Handle file);
 // NOTE(afb) :: Process Manipulation
 // TODO(afb) :: Add arguments
 #if OS_WINDOWS
-internal String8 OS_RunCommand(Arena* arena, String8 commandToExecute); 
+internal String8 OS_RunCommand(M_Arena* arena, String8 commandToExecute); 
 #endif
 
 // NOTE(afb) :: Path
-internal String8 OS_PathNormalize(Arena* arena, String8 file_path);
-internal String8 OS_PathConcat(Arena* arena, String8 a, String8 b);
+internal String8 OS_PathNormalize(M_Arena* arena, String8 file_path);
+internal String8 OS_PathConcat(M_Arena* arena, String8 a, String8 b);
 internal b32     OS_PathExists(String8 a);
 
 typedef void (*WalkFunc)(void* obj, String8 path, OS_FileInfo info);

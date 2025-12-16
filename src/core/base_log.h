@@ -12,13 +12,13 @@ typedef enum LogMsgKind
 
 struct Logger
 {
-	::Arena* Arena;
+	M_Arena* Arena;
 
-	String8 PreFormat;
+	// String8 PreFormat;
 	String8List Logs[LogMsgKind_Count];
 };
 
-internal Logger* LoggerInit(String8 pre_format);
+internal Logger* LoggerInit();
 
 internal void LogMsg(Logger* logger, LogMsgKind kind, String8 msg);
 internal void LogMsgF(Logger* logger, LogMsgKind kind, String8 msg, ...);

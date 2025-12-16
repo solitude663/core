@@ -210,7 +210,7 @@ internal b8 operator==(const String8& a, const String8& b)
 }
 
 // NOTE(afb) :: Allocation
-internal String8 Str8Copy(Arena* arena, String8 a)
+internal String8 Str8Copy(M_Arena* arena, String8 a)
 {
 	String8 result;
 	result.Str = PushArray(arena, u8, a.Length);
@@ -219,7 +219,7 @@ internal String8 Str8Copy(Arena* arena, String8 a)
 	return result;
 }
 
-internal String8 Str8Concat(Arena* arena, String8 a, String8 b)
+internal String8 Str8Concat(M_Arena* arena, String8 a, String8 b)
 {
 	String8 result;		
 	u64 len = a.Length + b.Length;
@@ -231,7 +231,7 @@ internal String8 Str8Concat(Arena* arena, String8 a, String8 b)
 	return result;
 }
 
-internal String8 Str8Format(Arena* arena, const char* format, ...)
+internal String8 Str8Format(M_Arena* arena, const char* format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -241,7 +241,7 @@ internal String8 Str8Format(Arena* arena, const char* format, ...)
 	return result;
 }
 
-internal String8 Str8Format(Arena* arena, String8 format, ...)
+internal String8 Str8Format(M_Arena* arena, String8 format, ...)
 {
 	va_list args;
 	va_start(args, format);
@@ -250,7 +250,7 @@ internal String8 Str8Format(Arena* arena, String8 format, ...)
 	return result;
 }
 
-internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
+internal String8 Str8FormatExplicit(M_Arena* arena, String8 format, va_list args)
 {
 	va_list countPtr, printPtr;	
 	va_copy(countPtr, args);
@@ -434,7 +434,7 @@ internal String8 Str8FormatExplicit(Arena* arena, String8 format, va_list args)
 	return result;
 }
 
-internal String8 Str8Fill(Arena* arena, u8 byte, u64 size)
+internal String8 Str8Fill(M_Arena* arena, u8 byte, u64 size)
 {
 	String8 result;
 	result.Str = PushArray(arena, u8, size);
@@ -470,7 +470,7 @@ internal void Str8ListPushNodeFront(String8List* list, String8Node* node)
 	list->Length += node->Str.Length;
 }
 
-internal void Str8ListPush(Arena* arena, String8List* list, String8 str)
+internal void Str8ListPush(M_Arena* arena, String8List* list, String8 str)
 {
 	String8Node* node = PushStruct(arena, String8Node);
 	node->Str = str;
@@ -478,14 +478,14 @@ internal void Str8ListPush(Arena* arena, String8List* list, String8 str)
 }
 
 
-internal void Str8ListPushFront(Arena* arena, String8List* list, String8 str)
+internal void Str8ListPushFront(M_Arena* arena, String8List* list, String8 str)
 {
 	String8Node* node = PushStruct(arena, String8Node);
 	node->Str = str;
 	Str8ListPushNodeFront(list, node);
 }
 
-internal String8 Str8Join(Arena* arena, String8List list, String8 join)
+internal String8 Str8Join(M_Arena* arena, String8List list, String8 join)
 {
 	u64 len = list.NodeCount ? ((list.NodeCount - 1) * join.Length + list.Length) : 0;
 	u8* buffer = PushArray(arena, u8, len);
@@ -509,7 +509,7 @@ internal String8 Str8Join(Arena* arena, String8List list, String8 join)
 	return Str8(buffer, len);
 }
 
-internal String8List Str8Split(Arena* arena, String8 str, String8 split)
+internal String8List Str8Split(M_Arena* arena, String8 str, String8 split)
 {
 	String8List result = {0};
 	if(split.Length == 0)
@@ -543,7 +543,7 @@ internal String8List Str8Split(Arena* arena, String8 str, String8 split)
 	return result;
 }
 
-internal String8List Str8SplitRemoveEmpty(Arena* arena, String8 str, String8 split)
+internal String8List Str8SplitRemoveEmpty(M_Arena* arena, String8 str, String8 split)
 {
 	String8List result = {0};
 	if(split.Length == 0)
@@ -613,7 +613,7 @@ internal u64 Str8FindLast(String8 str, String8 search)
 	return result;
 }
 
-internal String8 Str8Replace(Arena* arena, String8 str, String8 id, String8 target)
+internal String8 Str8Replace(M_Arena* arena, String8 str, String8 id, String8 target)
 {
 	TempArena scratch = GetScratch(arena);
 
@@ -646,7 +646,7 @@ internal String8 Str8Replace(Arena* arena, String8 str, String8 id, String8 targ
 	return result;
 }
 
-internal char* ToCString(Arena* arena, String8 str)
+internal char* ToCString(M_Arena* arena, String8 str)
 {
 	char* result = PushArray(arena, char, str.Length + 1);
 	MemoryCopy(result, str.Str, str.Length);
@@ -708,7 +708,7 @@ internal f64 F64FromStr8(String8 str)
 	return result;
 }
 
-internal String8Array Str8ListToArray(Arena* arena, String8List list)
+internal String8Array Str8ListToArray(M_Arena* arena, String8List list)
 {
 	String8Array result = {0};
 	result.Values = PushArray(arena, String8, list.NodeCount);

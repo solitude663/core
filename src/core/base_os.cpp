@@ -228,7 +228,7 @@ internal String8 OS_Dir(String8 path)
 }
 
 
-internal String8Array OS_DirFiles(Arena* arena, String8 path)
+internal String8Array OS_DirFiles(M_Arena* arena, String8 path)
 {
 	TempArena temp = GetScratch(arena);
 	String8List list = {0};
@@ -248,7 +248,7 @@ internal String8Array OS_DirFiles(Arena* arena, String8 path)
 }
 
 // NOTE(afb) :: Path
-internal String8 OS_PathNormalize(Arena* arena, String8 file_path)
+internal String8 OS_PathNormalize(M_Arena* arena, String8 file_path)
 {	
 	String8 result = {0};
 	TempArena temp = GetScratch(arena);
@@ -306,7 +306,7 @@ internal String8 OS_PathNormalize(Arena* arena, String8 file_path)
 	return result;
 }
 
-internal String8 OS_PathConcat(Arena* arena, String8 a, String8 b) // TODO(afb) :: Varadic 
+internal String8 OS_PathConcat(M_Arena* arena, String8 a, String8 b) // TODO(afb) :: Varadic 
 {
 	TempArena temp = GetScratch(arena);
 	if((a.Length && a.Str[a.Length-1] != OS_PATH_SEPARATOR[0]) &&

@@ -4,18 +4,18 @@ per_thread ThreadContext* ThreadCTX;
 internal ThreadContext TCTXAlloc()
 {
 	ThreadContext context = {0};
-	for(u32 threadId = 0; threadId < ArrayCount(context.ScratchArenas); threadId++)
+	for(u32 thread_id = 0; thread_id < ArrayCount(context.ScratchArenas); thread_id++)
 	{
-		context.ScratchArenas[threadId] = ArenaAlloc(GB(8));
+		context.ScratchArenas[thread_id] = ArenaAlloc(GB(8));
 	}
 	return context;
 }
 
 internal void TCTXRelease(ThreadContext* context)
 {
-	for(u32 threadId = 0; threadId < ArrayCount(context->ScratchArenas); threadId++)
+	for(u32 thread_id = 0; thread_id < ArrayCount(context->ScratchArenas); thread_id++)
 	{
-		ArenaFree(context->ScratchArenas[threadId]);
+		ArenaFree(context->ScratchArenas[thread_id]);
 	}
 }
 
@@ -29,7 +29,7 @@ internal void SetThreadContext(ThreadContext* threadContext)
 	ThreadCTX = threadContext;
 }
 
-internal TempArena GetScratch(Arena* conflict)
+internal TempArena GetScratch(M_Arena* conflict)
 {
 	TempArena result = {0};
 	
