@@ -1,5 +1,6 @@
 #!/usr/bin/bash
 
-g++ -o ./test ./test.cpp
+flags="-Wall -Wextra -Wno-unused-function -Wno-unused-variable"
+g++ $flags -o ./test ./test.cpp
 
-./test
+# ./test

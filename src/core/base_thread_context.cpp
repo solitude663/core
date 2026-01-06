@@ -3,7 +3,7 @@ per_thread ThreadContext* ThreadCTX;
 
 internal ThreadContext TCTXAlloc()
 {
-	ThreadContext context = {0};
+	ThreadContext context = {};
 	for(u32 thread_id = 0; thread_id < ArrayCount(context.ScratchArenas); thread_id++)
 	{
 		context.ScratchArenas[thread_id] = ArenaAlloc(GB(8));
@@ -31,7 +31,7 @@ internal void SetThreadContext(ThreadContext* threadContext)
 
 internal TempArena GetScratch(M_Arena* conflict)
 {
-	TempArena result = {0};
+	TempArena result = {};
 	
 	ThreadContext* tc = GetThreadContext();
 	for(u64 scratchId = 0; scratchId < ArrayCount(tc->ScratchArenas); scratchId++)

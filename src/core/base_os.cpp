@@ -231,7 +231,7 @@ internal String8 OS_Dir(String8 path)
 internal String8Array OS_DirFiles(M_Arena* arena, String8 path)
 {
 	TempArena temp = GetScratch(arena);
-	String8List list = {0};
+	String8List list = {};
 
 	String8 search_path = OS_PathConcat(temp.Arena, path, "*");
 	for(OS_FileIter iter = OS_FileIterMake(temp.Arena, search_path);
@@ -250,7 +250,7 @@ internal String8Array OS_DirFiles(M_Arena* arena, String8 path)
 // NOTE(afb) :: Path
 internal String8 OS_PathNormalize(M_Arena* arena, String8 file_path)
 {	
-	String8 result = {0};
+	String8 result = {};
 	TempArena temp = GetScratch(arena);
 
 	String8 path_sep = OS_PATH_SEPARATOR;
@@ -287,7 +287,7 @@ internal String8 OS_PathNormalize(M_Arena* arena, String8 file_path)
 		}
 	}
 
-	String8List sb = {0};
+	String8List sb = {};
 	for(u32 i = 0; i < current; i++)
 	{
 		u32 index = parts_to_save[i];
@@ -327,7 +327,7 @@ internal b32 OS_PathExists(String8 path)
 	return result;
 }
 
-internal void OS_PathWalkHelper(String8 path, WalkFunc proc, void* obj)
+internal void OS__PathWalkHelper(String8 path, WalkFunc proc, void* obj)
 {
 	TempArena temp = GetScratch(0);
 
@@ -346,16 +346,17 @@ internal void OS_PathWalkHelper(String8 path, WalkFunc proc, void* obj)
 
 		if(Str8Match(info.Name, ".", MF_None) || Str8Match(info.Name, "..", MF_None))
 			continue;
-
+		
 		proc(obj, filename, info);
 
 		if(IsDirectory(info.Flags))
 		{
 			// String8 search_path = OS_PathConcat(temp.Arena, filename, "*");
 			// OS_PathWalkHelper(search_path, proc, obj);
+			// TODO(afb) :: Call the helper. Don't allocate new string
 			OS_PathWalk(filename, proc, obj);
 		}
-
+		
 	}
 
 	ReleaseScratch(temp);
@@ -363,10 +364,7 @@ internal void OS_PathWalkHelper(String8 path, WalkFunc proc, void* obj)
 
 internal b32 OS_PathWalk(String8 path, WalkFunc proc, void* obj)
 {
-	if(!OS_PathExists(path))
-	{
-		return false;
-	}
+	if(!OS_PathExists(path)) return false;
 	TempArena temp = GetScratch(0);
 
 #if OS_WINDOWS	
@@ -374,7 +372,7 @@ internal b32 OS_PathWalk(String8 path, WalkFunc proc, void* obj)
 #else
 	String8 search_path = path;
 #endif
-	OS_PathWalkHelper(search_path, proc, obj);
+	OS__PathWalkHelper(search_path, proc, obj);
 
 	ReleaseScratch(temp);
 	return true;

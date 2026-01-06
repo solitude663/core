@@ -172,7 +172,7 @@ internal String8 Trim8Space(String8 str)
 internal b8 Str8Match(const String8& a, const String8& b, MatchFlags flags)
 {
 	b8 result = 0;
-	
+
 	if(a.Length == b.Length)
 	{
 		result = 1;
@@ -270,7 +270,7 @@ internal String8 Str8FormatExplicit(M_Arena* arena, String8 format, va_list args
 			// Assert((i + 1) < format.Length);
 			if((i + 1) >= format.Length)
 			{
-				printf("Found % with no type specifier\n");
+				printf("Found %% with no type specifier\n");
 				return EmptyString;
 			}
 
@@ -511,7 +511,7 @@ internal String8 Str8Join(M_Arena* arena, String8List list, String8 join)
 
 internal String8List Str8Split(M_Arena* arena, String8 str, String8 split)
 {
-	String8List result = {0};
+	String8List result = {};
 	if(split.Length == 0)
 	{
 		Str8ListPush(arena, &result, str);
@@ -545,7 +545,7 @@ internal String8List Str8Split(M_Arena* arena, String8 str, String8 split)
 
 internal String8List Str8SplitRemoveEmpty(M_Arena* arena, String8 str, String8 split)
 {
-	String8List result = {0};
+	String8List result = {};
 	if(split.Length == 0)
 	{
 		Str8ListPush(arena, &result, str);
@@ -617,7 +617,7 @@ internal String8 Str8Replace(M_Arena* arena, String8 str, String8 id, String8 ta
 {
 	TempArena scratch = GetScratch(arena);
 
-	String8List list = {0};
+	String8List list = {};
 	String8 curr = str;
 	for(;;)
 	{
@@ -710,7 +710,7 @@ internal f64 F64FromStr8(String8 str)
 
 internal String8Array Str8ListToArray(M_Arena* arena, String8List list)
 {
-	String8Array result = {0};
+	String8Array result = {};
 	result.Values = PushArray(arena, String8, list.NodeCount);
 	result.Count = list.NodeCount;
 	

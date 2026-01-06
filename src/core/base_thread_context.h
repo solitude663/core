@@ -11,7 +11,7 @@ struct ThreadContext
 internal ThreadContext  TCTXAlloc();
 internal void           TCTXRelease(ThreadContext* threadContext);
 internal ThreadContext* GetThreadContext();
-internal void           SetThreadContext(ThreadContext thtreadContext);
+internal void           SetThreadContext(ThreadContext* thtreadContext);
 
 internal TempArena GetScratch(M_Arena* conflict); // TODO(afb) :: Add variable conflict count
 #define ReleaseScratch(temp) TempArenaEnd(temp)

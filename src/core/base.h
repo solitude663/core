@@ -32,21 +32,28 @@ typedef intptr_t  sptr_value;
 #define local_persist	 static
 #define global			 static
 
+#define COMPILER_CURRENT_FUNCTION __func__
+#define COMPILER_CURRENT_FILE	  __FILE__
+#define COMPILER_CURRENT_LINE	  __LINE__
+
 #define KB(amount) (u64)((amount) * 1024)
 #define MB(amount) (u64)((KB(amount)) * 1024)
 #define GB(amount) (u64)((MB(amount)) * 1024)
 #define TB(amount) (u64)((GB(amount)) * 1024)
 
 #define ArrayCount(arr) (sizeof(arr) / sizeof((arr)[0]))
-
 #define OffsetOf(type, member) ((u64)&(((type*)0)->member))
 
+#define Alias(type, value) (*(type*)&(value))
 
 #define Max(a, b) a > b ? a : b;
 #define Min(a, b) a < b ? a : b;
 
 #if OS_WINDOWS
 #define Debug_Break() __debugbreak()
+#elif OS_LINUX
+#include <signal.h>
+#define Debug_Break() raise(SIGTRAP)
 #else
 #define Debug_Break() (*(volatile int*)0 = 1)
 #endif

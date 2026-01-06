@@ -53,6 +53,11 @@ struct String8Array
 {
 	String8* Values;
 	u64 Count;
+	
+	inline const String8& operator[](i32 index) const
+	{
+		return Values[index];
+	}
 };
 
 enum MatchFlags
@@ -113,6 +118,7 @@ internal void Str8ListPushNodeFront(String8List* list, String8Node* node);
 internal void Str8ListPush(M_Arena* arena, String8List* list, String8 str);
 internal void Str8ListPushFront(M_Arena* arena, String8List* list, String8 str);
 
+#define Str8ListJoin Str8Join
 internal String8 Str8Join(M_Arena* arena, String8List list, String8 join);
 internal String8List Str8Split(M_Arena* arena, String8 str, String8 split);
 internal String8List Str8SplitRemoveEmpty(M_Arena* arena, String8 str, String8 split);

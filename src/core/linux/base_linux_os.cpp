@@ -4,10 +4,9 @@
 #include <sys/stat.h>
 #include <dirent.h>
 
-internal i32 OS_LinuxGetHandle(OS_Handle handle)
+inline i32 OS_LinuxGetHandle(OS_Handle handle)
 {
-	i32 result = 0;
-	result = (i32)(sptr_value)handle.Handle;
+	i32 result = Alias(i32, handle.Handle);
 	return result;
 }
 
@@ -55,7 +54,7 @@ internal OS_Handle OS_FileOpen(String8 path, u64 flags)
 	
 	char* c_path = ToCString(scratch.Arena, path);   
 	i32 file_handle = open(c_path, access_flags | creation_flags, mode);
-	result.Handle = file_handle < 0 ? (ptr_value)(sptr_value)file_handle : file_handle;
+	result.Handle = Alias(ptr_value, file_handle);
 	
 	ReleaseScratch(scratch);
 	return result;
@@ -63,7 +62,7 @@ internal OS_Handle OS_FileOpen(String8 path, u64 flags)
 
 internal void OS_FileClose(OS_Handle file)
 {
-	i32 handle_value = (i32)(sptr_value)(ptr_value)file.Handle;
+	i32 handle_value = Alias(i32, file.Handle);
 	close(handle_value);
 }
 
@@ -73,7 +72,7 @@ internal String8 OS_FileRead(M_Arena* arena, OS_Handle handle, u64 start, u64 co
 	
 	i32 file = OS_LinuxGetHandle(handle);
 
-	struct stat stats = {0};	
+	struct stat stats;
 	if((file != -1) && (fstat(file, &stats) == 0))
 	{
 		off_t file_size = stats.st_size;	
@@ -110,7 +109,7 @@ internal String8 OS_FileReadAll(M_Arena* arena, String8 path)
 	i32 file = open(c_path, O_RDONLY, 0);
 	if(file >= 0)
 	{
-		struct stat stats = {0};	
+		struct stat stats;	
 		fstat(file, &stats);
 		off_t file_size = stats.st_size;	
 
@@ -163,6 +162,8 @@ internal b32 OS_FileWrite(OS_Handle file, String8List data, u64 offset)
 
 internal b32 OS_FileCopy(String8 dest_path, String8 src_path, b32 replace)
 {
+	// TODO(afb) :: Do for linux
+	UnusedVariable(replace);
 	b32 result = 0;
 	TempArena temp = GetScratch(0);
 	char* src = ToCString(temp.Arena, src_path);
@@ -209,23 +210,31 @@ internal b32 OS_FileDelete(String8 path)
 	return result;
 }
 
+internal u64 OS_Linux_GetFileSize(char* path)
+{
+	u64 result = 0;
+
+	i32 file = open(path, O_RDONLY);
+	if(file >= 0)
+	{
+		struct stat stats;	
+		fstat(file, &stats);
+		result = stats.st_size;
+		close(file);
+	}	
+	return result;
+}
+
 internal u64 OS_GetFileSize(String8 path)
 {
 	u64 result = 0;
 	TempArena temp = GetScratch(0);
 	char* c_path = ToCString(temp.Arena, path);
-
-	i32 file = open(c_path, O_RDONLY);
-	if(file >= 0)
-	{
-		struct stat stats = {0};	
-		fstat(file, &stats);
-		result = stats.st_size;
-		close(file);
-	}	
+	OS_Linux_GetFileSize(c_path);
 	ReleaseScratch(temp);
 	return result;
 }
+
 
 // TODO(afb) :: Is there a way to do this without creating a handle
 internal b32 OS_FileExists(String8 path)
@@ -274,8 +283,8 @@ internal String8 GetWorkingDirectory(M_Arena* arena)
 
 internal OS_FileInfo OS_GetFileInfo(String8 path)
 {
-	OS_FileInfo result = {0};	
-	struct stat file_stats = {0};
+	OS_FileInfo result = {};	
+	struct stat file_stats;
 	
 	OS_Handle file_handle = OS_FileOpen(path, OS_AccessFlag_Read);
 	i32 handle = OS_LinuxGetHandle(file_handle);
@@ -290,11 +299,12 @@ internal OS_FileInfo OS_GetFileInfo(String8 path)
 	return result;
 }
 
+// TODO(afb) :: Does not get the file size
 internal OS_FileIter OS_FileIterMake(M_Arena* arena, String8 path)
 {
 	TempArena temp = GetScratch(arena);
 
-	OS_FileIter result = {0};
+	OS_FileIter result = {};
 	
 	char* c_path = ToCString(temp.Arena, path);
 	DIR* dir_handle = opendir(c_path);	
@@ -344,17 +354,18 @@ internal b32 OS_FileIterValid(OS_FileIter iter)
 {
 	return iter.Handle.Handle != 0;
 }
+
 #if 0
 internal String8 OS_RunCommand(M_Arena* arena, String8 commandToExecute)
 {
 	TempArena temp = GetScratch(arena);
 
-	String8 result = {0};
+	String8 result = {};
 		
 	char inputBuffer[4096];
 	DWORD bytesRead = 0;
 
-	SECURITY_ATTRIBUTES sa = {0};
+	SECURITY_ATTRIBUTES sa = {};
 	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 	sa.bInheritHandle = TRUE;
 
@@ -362,15 +373,15 @@ internal String8 OS_RunCommand(M_Arena* arena, String8 commandToExecute)
 	if(!CreatePipe(&readPipe, &writePipe, &sa, 0))
 	{
 		// fprintf(stderr, "Failed to create pipe\n");
-		return String8{0}; // TODO(afb) :: Create a constant empty string
+		return String8{}; // TODO(afb) :: Create a constant empty string
 	}
 
 	char* command = ToCString(temp.Arena, Str8Format(temp.Arena,
 													 "cmd.exe /c %S",
 													 commandToExecute));
 
-	PROCESS_INFORMATION pi = {0};
-	STARTUPINFOA si = {0};
+	PROCESS_INFORMATION pi = {};
+	STARTUPINFOA si = {};
 	si.hStdOutput = writePipe;
 	si.hStdError = writePipe;
 	si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
@@ -378,11 +389,11 @@ internal String8 OS_RunCommand(M_Arena* arena, String8 commandToExecute)
 	if(!CreateProcessA(0, command, 0, 0, TRUE, 0, 0, 0, &si, &pi))
 	{
 		// fprintf(stderr, "Failed to create process(%d)\n", GetLastError());
-		return String8{0}; // TODO(afb) :: Create a constant empty string
+		return String8{}; // TODO(afb) :: Create a constant empty string
 	}
 	CloseHandle(writePipe);
 
-	String8List sb = {0};
+	String8List sb = {};
 	while(ReadFile(readPipe, inputBuffer, sizeof(inputBuffer) - 1, &bytesRead, 0))
 	{
 		String8 output = Str8Copy(temp.Arena, Str8((u8*)inputBuffer, bytesRead));

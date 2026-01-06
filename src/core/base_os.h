@@ -117,12 +117,11 @@ internal String8Array OS_DirFiles(M_Arena* arena, String8 path);
 
 internal String8 GetWorkingDirectory(M_Arena* arena);
 
-#if 1
+
 internal OS_FileIter OS_FileIterMake(M_Arena* arena, String8 path);
 internal OS_FileIter OS_FileIterNext(M_Arena* arena, OS_FileIter iter);
 internal void        OS_FileIterClose(OS_FileIter iter);
 internal b32         OS_FileIterValid(OS_FileIter iter);
-#endif
 
 // internal OS_FileInfo OS_GetFileInfo(String8 path);
 internal u64	     OS_GetFileSize(String8 path);

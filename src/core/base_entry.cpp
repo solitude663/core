@@ -1,3 +1,17 @@
+internal void BaseInit()
+{
+	ThreadContext ctx = TCTXAlloc();
+	ctx.IsMainThread = 1;
+	ctx.Logger = LoggerInit();
+	SetThreadContext(&ctx);
+}
+
+internal void BaseShutdown()
+{
+	ThreadContext* ctx = GetThreadContext();
+	TCTXRelease(ctx);
+}
+
 internal void BaseMainThreadEntry(void (*entry)(int, char**), int argc, char **argv)
 {
 	ThreadContext ctx = TCTXAlloc();
@@ -8,7 +22,7 @@ internal void BaseMainThreadEntry(void (*entry)(int, char**), int argc, char **a
 	// TODO(afb) :: OS_Init
 	
 	entry(argc, argv);
-	TCTXRelease(&ctx);  
+	TCTXRelease(&ctx);
 }
 
 internal void BaseThreadEntry(void (*entry)(void *p), void *params)
