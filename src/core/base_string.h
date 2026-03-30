@@ -18,11 +18,9 @@ struct String8
 		Length = CStringLength(cstr);
 	}
 
-	inline String8(u8* str, u64 len)
-	{
-		Str = str;
-		Length = len;
-	}
+	constexpr inline String8(u8* str, u64 len)
+		:Str(str), Length(len)
+	{ }
 
 	inline u8& operator[](i32 index)
 	{
@@ -131,5 +129,6 @@ internal String8Array Str8ListToArray(M_Arena* arena, String8List list);
 internal u64 U64FromStr8(String8 str);
 internal f64 F64FromStr8(String8 str);
 
-const String8 EmptyString = {(u8*)"", 0};
+constexpr const u8 __EmptyString__[] = "";
+constexpr String8 EmptyString = {(u8*)__EmptyString__, 0};
 #endif // Header guard

@@ -45,6 +45,7 @@ typedef intptr_t  sptr_value;
 #define OffsetOf(type, member) ((u64)&(((type*)0)->member))
 
 #define Alias(type, value) (*(type*)&(value))
+#define Bit(x) (1 << (x))
 
 #define Max(a, b) a > b ? a : b;
 #define Min(a, b) a < b ? a : b;

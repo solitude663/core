@@ -310,10 +310,9 @@ internal OS_FileIter OS_FileIterMake(M_Arena* arena, String8 path)
 	DIR* dir_handle = opendir(c_path);	
 	if(dir_handle)
 	{
-		result.Handle.Handle = (ptr_value)dir_handle;
-
 		struct dirent* data = readdir(dir_handle);
 		
+		result.Handle.Handle = (ptr_value)dir_handle;
 		result.Info.Name = Str8Copy(arena, Str8C(data->d_name));
 		result.Info.FileSize = OS_GetFileSize(result.Info.Name);
 		result.Info.Flags = (data->d_type == DT_DIR) ? OS_FileFlag_Directory : OS_FileFlag_None;
