@@ -6,159 +6,271 @@
 #error OS not supported
 #endif
 
-#ifndef FLAG_CAPACITY
-#define FLAG_CAPACITY 256
+#ifndef OS_FLAG_CAPACITY
+#define OS_FLAG_CAPACITY 256
 #endif
 
-global Flag Flags[FLAG_CAPACITY];
+global Flag Flags[OS_FLAG_CAPACITY];
 global u64 FlagCount;
 
-internal u64* OS_FlagInt(String8 name, u64 defaultValue, String8 usage)
+internal u64* OS_FlagInt(String8 name, u64 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_Int;
+	Flags[current].Kind = Flag_Int;
 	Flags[current].Name = name;
-	Flags[current].IntValue = defaultValue;
+	Flags[current].IntValue = default_value;
 	Flags[current].Usage = usage;
 	return &Flags[current].IntValue;
 }
 
-internal void OS_FlagIntVar(u64* ptr, String8 name, u64 defaultValue, String8 usage)
+internal void OS_FlagIntVar(u64* ptr, String8 name, u64 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_IntPtr;
+	Flags[current].Kind = Flag_IntPtr;
 	Flags[current].Name = name;
 	Flags[current].PtrValue = (ptr_value)ptr;
 	Flags[current].Usage = usage;
-	*ptr = defaultValue;
+	*ptr = default_value;
 }
 
-internal f64* OS_FlagFloat(String8 name, f64 defaultValue, String8 usage)
+internal f64* OS_FlagFloat(String8 name, f64 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_Float;
+	Flags[current].Kind = Flag_Float;
 	Flags[current].Name = name;
-	Flags[current].FloatValue = defaultValue;
+	Flags[current].FloatValue = default_value;
 	Flags[current].Usage = usage;
 	return &Flags[current].FloatValue;
 }
 
-internal void OS_FlagFloatVar(f64* ptr, String8 name, f64 defaultValue, String8 usage)
+internal void OS_FlagFloatVar(f64* ptr, String8 name, f64 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_FloatPtr;
+	Flags[current].Kind = Flag_FloatPtr;
 	Flags[current].Name = name;
 	Flags[current].PtrValue = (ptr_value)ptr;
 	Flags[current].Usage = usage;
-	*ptr = defaultValue;
+	*ptr = default_value;
 }
 
-internal b32* OS_FlagBool(String8 name, b32 defaultValue, String8 usage)
+internal b32* OS_FlagBool(String8 name, b32 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_Bool;
+	Flags[current].Kind = Flag_Bool;
 	Flags[current].Name = name;
-	Flags[current].BoolValue = defaultValue;
+	Flags[current].BoolValue = default_value;
 	Flags[current].Usage = usage;
 	return &Flags[current].BoolValue;
 }
 
-internal void OS_FlagBoolVar(b32* ptr, String8 name, b32 defaultValue, String8 usage)
+internal void OS_FlagBoolVar(b32* ptr, String8 name, b32 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_BoolPtr;
+	Flags[current].Kind = Flag_BoolPtr;
 	Flags[current].Name = name;
 	Flags[current].PtrValue = (ptr_value)ptr;
 	Flags[current].Usage = usage;
-	*ptr = defaultValue;
+	*ptr = default_value;
 }
 
-internal String8* OS_FlagString(String8 name, String8 defaultValue, String8 usage)
+internal String8* OS_FlagString(String8 name, String8 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_String;
+	Flags[current].Kind = Flag_String;
 	Flags[current].Name = name;
-	Flags[current].StringValue = defaultValue;
+	Flags[current].StringValue = default_value;
 	Flags[current].Usage = usage;
 	return &Flags[current].StringValue;
 }
 
-internal void OS_FlagStringVar(String8* ptr, String8 name, String8 defaultValue, String8 usage)
+internal void OS_FlagStringVar(String8* ptr, String8 name, String8 default_value, String8 usage)
 {
+	Assert((FlagCount + 1) < ArrayCount(Flags));
 	u64 current = FlagCount++;
-	Assert(current < ArrayCount(Flags));
 
-	Flags[current].Type = FT_StringPtr;
+	Flags[current].Kind = Flag_StringPtr;
 	Flags[current].Name = name;
 	Flags[current].PtrValue = (ptr_value)ptr;
 	Flags[current].Usage = usage;
-	*ptr = defaultValue;
+	*ptr = default_value;
 }
 
-internal b8 OS_FlagParse(u64 argc, char** argv)
+internal Flag* OS__GetFlagForArg(String8 arg)
 {
-	b8 result = 1;
+	Flag* result = 0;
+
+	for(u32 i = 0; i < FlagCount; i++)
+	{
+		if(Suffix8(arg, arg.Length - 2) == Flags[i].Name)
+		{
+			result = &Flags[i];
+			break;
+		}
+	}
+	
+	return result;
+}
+
+internal u32 OS_FlagParse(u64 arg_count, char** argv)
+{
+	u64 arg_index = 1;
+	for(; arg_index < arg_count; arg_index++)
+	{
+		Flag* flag = OS__GetFlagForArg(Str8C(argv[arg_index]));
+		if(!flag) break;
+		
+		b32 has_next = (arg_index + 1) < arg_count;
+
+		switch(flag->Kind)
+		{
+			case(Flag_Int):
+			case(Flag_IntPtr):
+			{
+				if(!has_next) return 0;
+
+				String8 arg_value = Str8C(argv[arg_index + 1]);
+				u64 value = U64FromStr8(arg_value);
+					
+				if(flag->Kind == Flag_Int) flag->IntValue = value;
+				else *(u64*)flag->PtrValue = value;
+			}break;
+
+			case(Flag_Float):
+			case(Flag_FloatPtr):
+			{
+				if(!has_next) return 0;
+
+				String8 arg_value = Str8C(argv[arg_index + 1]);
+				f64 value = F64FromStr8(arg_value);
+					
+				if(flag->Kind == Flag_Float) flag->FloatValue = value;
+				else *(f64*)flag->PtrValue = value;
+			}break;
+
+			case(Flag_String):
+			case(Flag_StringPtr):
+			{
+				if(!has_next) return 0;
+				String8 value = Str8C(argv[arg_index + 1]);
+
+				if(flag->Kind == Flag_String) flag->StringValue = value;
+				else *(String8*)flag->PtrValue = value;
+			}break;
+
+			case(Flag_Bool):
+			case(Flag_BoolPtr):
+			{
+				b32 value = 0;
+				if(has_next)
+				{
+					String8 arg_value = Str8C(argv[arg_index + 1]);						
+					if(arg_value.Str[0] == '-')
+					{
+						value = 1;
+					}
+					else
+					{
+						if(Str8Match(arg_value, "true", MF_IgnoreCase))
+							value = 1;
+						else if(Str8Match(arg_value, "false", MF_IgnoreCase))
+							value = 0;
+						else
+						{
+							value = 1;							
+						}
+					}
+				}
+				else
+				{
+					value = 1;
+				}
+					
+				if(flag->Kind == Flag_Bool) flag->BoolValue = value;
+				else *(b32*)flag->PtrValue = value;
+					
+			}break;
+
+			default:
+			{
+				Assert(0 && "Should not be possible\n");
+			}
+		}
+	}
+	
+	return arg_index;
+}
+
+internal u32 OS_FlagParse2(u64 argc, char** argv)
+{
+	u32 result = 0;
 	
 	String8 program_name = Str8C(argv[0]);
 	UnusedVariable(program_name);
-	
-	for(u64 flagId = 0; flagId < FlagCount; flagId++)
+
+	u64 arg_index = 1;
+	for(u64 flag_id = 0; flag_id < FlagCount; flag_id++)
 	{
-		Flag* flag = &Flags[flagId];
-		for(u64 argIndex = 1; argIndex < argc; argIndex++)
+		Flag* flag = &Flags[flag_id];
+		for(; arg_index < argc; arg_index++)
 		{
-			String8 arg = Str8C(argv[argIndex]);
-			String8 argName = Suffix8(arg, arg.Length - 2);
-			
-			if(!Str8Match(flag->Name, argName, MF_None)) continue;
-
-			b8 hasNextIndex = (argIndex + 1) < argc;
-			switch(flag->Type)
+			if(!Str8Match(Prefix8(flag->Name, 2), "--", MF_None))
 			{
-				case(FT_Int):
-				case(FT_IntPtr):
-				{
-					if(!hasNextIndex) return 0;
-					String8 strValue = Str8C(argv[argIndex + 1]);
-					u64 value = U64FromStr8(strValue);
+				result = arg_index;
+				return result;
+			}
+			
+			if(!Str8Match(flag->Name, argv[arg_index], MF_None))
+			{
+				continue;			
+			}
 
-					if(flag->Type == FT_Int) flag->IntValue = value;
+			b8 has_next_index = (arg_index + 1) < argc;
+			switch(flag->Kind)
+			{
+				case(Flag_Int):
+				case(Flag_IntPtr):
+				{
+					if(!has_next_index) return 0;
+					String8 strValue = Str8C(argv[arg_index + 1]);
+					u64 value = U64FromStr8(strValue);
+					
+					if(flag->Kind == Flag_Int) flag->IntValue = value;
 					else *(u64*)flag->PtrValue = value;
 				}break;
 
-				case(FT_Float):
-				case(FT_FloatPtr):
+				case(Flag_Float):
+				case(Flag_FloatPtr):
 				{
-					if(!hasNextIndex) return 0;
-					String8 strValue = Str8C(argv[argIndex + 1]);
+					if(!has_next_index) return 0;
+					String8 strValue = Str8C(argv[arg_index + 1]);
 					f64 value = F64FromStr8(strValue);
 
-					if(flag->Type == FT_Float) flag->FloatValue = value;
+					if(flag->Kind == Flag_Float) flag->FloatValue = value;
 					else *(f64*)flag->PtrValue = value;
 				}break;
 
 				
-				case(FT_Bool):
-				case(FT_BoolPtr):
+				case(Flag_Bool):
+				case(Flag_BoolPtr):
 				{
 					b32 value = 0;
-					if(hasNextIndex)
+					if(has_next_index)
 					{
-						String8 strValue = Str8C(argv[argIndex + 1]);						
+						String8 strValue = Str8C(argv[arg_index + 1]);						
 						if(strValue.Str[0] == '-')
 						{
 							value = 1;
@@ -178,18 +290,18 @@ internal b8 OS_FlagParse(u64 argc, char** argv)
 						value = 1;
 					}
 					
-					if(flag->Type == FT_Bool) flag->BoolValue = value;
+					if(flag->Kind == Flag_Bool) flag->BoolValue = value;
 					else *(b32*)flag->PtrValue = value;
 					
 				}break;
 
-				case(FT_String):
-				case(FT_StringPtr):
+				case(Flag_String):
+				case(Flag_StringPtr):
 				{
-					if(!hasNextIndex) return 0;
-					String8 strValue = Str8C(argv[argIndex + 1]);
+					if(!has_next_index) return 0;
+					String8 strValue = Str8C(argv[arg_index + 1]);
 
-					if(flag->Type == FT_String) flag->StringValue = strValue;
+					if(flag->Kind == Flag_String) flag->StringValue = strValue;
 					else *(String8*)flag->PtrValue = strValue;
 				}break;
 
@@ -202,6 +314,7 @@ internal b8 OS_FlagParse(u64 argc, char** argv)
 		}
 	}
 
+	result = arg_index;
 	return result;
 }
 

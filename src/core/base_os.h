@@ -11,22 +11,22 @@
 #define OS_WRONG_PATH_SEPARATOR "\\"
 #endif
 
-enum FlagType
+enum FlagKind
 {
-	FT_Int,
-	FT_Bool,
-	FT_Float,
-	FT_String,
-	
-	FT_IntPtr,
-	FT_BoolPtr,
-	FT_FloatPtr,
-	FT_StringPtr,
+	Flag_Int,
+	Flag_Bool,
+	Flag_Float,
+	Flag_String,	
+
+	Flag_IntPtr,
+	Flag_BoolPtr,
+	Flag_FloatPtr,
+	Flag_StringPtr,
 };
 
 struct Flag
 {
-	FlagType Type;
+	FlagKind Kind;
 	String8 Name;
 	String8 Usage;
 	
@@ -47,17 +47,17 @@ internal void  OS_Commit(void* base, u64 size);
 internal void  OS_Release(void* base, u64 size = 0);
 
 // NOTE(afb) :: Flag parsing
-internal u64*	  OS_FlagInt(String8 name, u64 defaultValue, String8 usage);
-internal f64*	  OS_FlagFloat(String8 name, f64 defaultValue, String8 usage);
-internal b32*	  OS_FlagBool(String8 name, b32 defaultValue, String8 usage);
-internal String8* OS_FlagString(String8 name, String8 defaultValue, String8 usage);
+internal u64*	  OS_FlagInt(String8 name, u64 default_value, String8 usage);
+internal f64*	  OS_FlagFloat(String8 name, f64 default_value, String8 usage);
+internal b32*	  OS_FlagBool(String8 name, b32 default_value, String8 usage);
+internal String8* OS_FlagString(String8 name, String8 default_value, String8 usage);
 
-internal void	  OS_FlagIntVar(u64* ptr, String8 name, u64 defaultValue, String8 usage);
-internal void	  OS_FlagFloatVar(f64* ptr, String8 name, f64 defaultValue, String8 usage);
-internal void	  OS_FlagBoolVar(b32* ptr, String8 name, b32 defaultValue, String8 usage);
-internal void	  OS_FlagStringVar(String8* ptr, String8 name, String8 defaultValue, String8 usage);
+internal void	  OS_FlagIntVar(u64* ptr, String8 name, u64 default_value, String8 usage);
+internal void	  OS_FlagFloatVar(f64* ptr, String8 name, f64 default_value, String8 usage);
+internal void	  OS_FlagBoolVar(b32* ptr, String8 name, b32 default_value, String8 usage);
+internal void	  OS_FlagStringVar(String8* ptr, String8 name, String8 default_value, String8 usage);
 
-internal b8		  OS_FlagParse(u64 argc, char** argv);
+internal u32	  OS_FlagParse(u64 argc, char** argv);
 
 // NOTE(afb) :: File and directory manipulation
 struct OS_Handle

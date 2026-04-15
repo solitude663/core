@@ -10,23 +10,24 @@ internal void PrintName(void* obj, String8 path, OS_FileInfo info)
 
 internal void MainEntry(i32 argc, char** argv)
 {
+	
 	UnusedVariable(argc);
 	UnusedVariable(argv);
-#if 0
+#if 1
 	M_Arena* arena = ArenaAllocDefault();
-	String8 root_path = "/home/tonii";
+	String8 root_path = "/home/tonii/Downloads/";
 	for(OS_FileIter iter = OS_FileIterMake(arena, root_path);
 		OS_FileIterValid(iter);
 		iter = OS_FileIterNext(arena, iter))
 	{
-		printf("Name: %.*s/%.*sSize: %llu\n",
+		printf("Name: %.*s/%.*sSize: %lu\n",
 			   Str8Print(root_path),
 			   Str8Print(iter.Info.Name),
 			   iter.Info.FileSize);
 	}
-#endif
 
-	OS_PathWalk("/home/tonii", PrintName, 0);
+	OS_PathWalk("/home/tonii/Downloads/", PrintName, 0);
+#endif
 }
 
 int main(void)
